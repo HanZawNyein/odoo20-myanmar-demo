@@ -17,6 +17,5 @@ RUN set -eu; \
     wkhtmltopdf --version; \
     fc-match 'Noto Sans Myanmar'; \
     rm -rf /var/lib/apt/lists/* /tmp/wkhtmltox.deb
-COPY --chown=odoo:odoo addons/ /mnt/extra-addons/
 ENV QT_MYANMAR_HARFBUZZ=1
 USER odoo

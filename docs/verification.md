@@ -28,3 +28,5 @@ The new runtime demo was tested on ARM64. AMD64 release packages were previously
 The image was rebuilt and the running demo reverified after replacing local package COPY with an architecture-specific GitHub release download inside the Dockerfile. The ARM64 download passed SHA256 verification; all QWeb PDF checks above passed again. `build/` is excluded from the Docker build context and the host fetch helper was removed.
 
 The helper scripts were subsequently removed to simplify the demo. Use the Compose commands in the README and print the report through Odoo. These recorded results describe the earlier verification run.
+
+The custom `myanmar_pdf_demo` addon was subsequently uninstalled from the running database and removed from the repository/image. Its sample PDF and results above remain historical evidence; the current demo uses standard Odoo apps and reports.

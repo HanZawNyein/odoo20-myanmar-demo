@@ -8,7 +8,7 @@ mkdir -p artifacts
 docker compose build
 docker compose up -d --wait db
 # Run once for a fresh database:
-docker compose run --rm --no-deps -T odoo odoo -d myanmar_demo -i myanmar_pdf_demo --without-demo=all --stop-after-init
+docker compose run --rm --no-deps -T odoo odoo -d myanmar_demo -i base,web,base_report_wkhtmltox --without-demo=all --stop-after-init
 docker compose up -d --wait
 ```
 
@@ -27,9 +27,9 @@ For the already initialized demo, simply run `docker compose up -d --wait`.
 
 Open http://localhost:8070 and sign in with `admin` / `admin`. These are disposable local demo credentials. Change the password in Odoo before using this setup beyond the local demo.
 
-Open **Myanmar PDF Demo → Unicode sample**, open/select the sample contact, then choose **Print → Myanmar Unicode Demo**. The two-page QWeb PDF repeats the original Unicode sentence three times with a table and page footers. The addon only supplies report/menu/sample data; it performs no text reordering or PUA conversion.
+Use Odoo's standard apps and reports. No custom addon is included or installed. The official `base_report_wkhtmltox` module selects the wkhtmltopdf backend.
 
-The previously verified sample PDF, previews and results are committed under `docs/`. Print a fresh report through Odoo to test the current runtime.
+The PDFs and verification files under `docs/` record the earlier custom report fixture, before that addon was removed. They are historical test evidence; use a standard Odoo report to verify current behavior.
 
 ## Image and release
 
@@ -56,6 +56,6 @@ See [wkhtmltopdf source changes](docs/wkhtmltopdf-changes.md) and [verification 
 
 ## References
 
-The layout follows the [official Odoo Docker Hub guide](https://hub.docker.com/_/odoo): PostgreSQL, `/var/lib/odoo` persistence, official connection variables, and `/mnt/extra-addons`. The [official Odoo 20 Dockerfile](https://github.com/odoo/docker/blob/master/20.0/Dockerfile) selects the same upstream Jammy wkhtmltopdf packaging family. This demo inherits the official entrypoint and Odoo configuration.
+The layout follows the [official Odoo Docker Hub guide](https://hub.docker.com/_/odoo): PostgreSQL, `/var/lib/odoo` persistence, official connection variables. The [official Odoo 20 Dockerfile](https://github.com/odoo/docker/blob/master/20.0/Dockerfile) selects the same upstream Jammy wkhtmltopdf packaging family. This demo inherits the official entrypoint and Odoo configuration.
 
 The release is published as a normal GitHub release. Its Myanmar implementation remains opt-in and has known limits; a release label does not expand the tested font/style/bidi coverage. Read the change document before using it for production reports.
