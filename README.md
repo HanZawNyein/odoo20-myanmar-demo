@@ -36,11 +36,11 @@ The PDFs and verification files under `docs/` record the earlier custom report f
 - Official base: `FROM odoo:20.0`. The demo was verified with Odoo 20.0-20260926.
 - PostgreSQL: 16 Alpine, pinned digest in Compose.
 - Release: [0.12.6.1-3-myanmar12](https://github.com/HanZawNyein/packaging/releases/tag/0.12.6.1-3-myanmar12).
-- The Dockerfile downloads the public `.deb` directly from the GitHub release URL, selects ARM64/AMD64 via `TARGETARCH` (with a dpkg fallback), and verifies its pinned SHA256. No local package file or source build is used.
-- The Dockerfile installs that package with apt (including `libharfbuzz0b`), `fonts-noto-core` and PDF inspection tools, then returns to the official `odoo` user.
+- The Dockerfile downloads the public `.deb` directly from the GitHub release URL, selects ARM64/AMD64 via `dpkg --print-architecture`, and verifies its pinned SHA256. No local package file or source build is used.
+- The Dockerfile installs that package with apt (including `libharfbuzz0b`), `fonts-noto-core` (Myanmar fonts missing from the base), then returns to the official `odoo` user.
 - `QT_MYANMAR_HARFBUZZ=1` enables the new path. A complete Unicode Myanmar font is required.
 
-ARM64 and AMD64 are supported. The initial running demo is ARM64 on Docker Desktop/macOS. This does not validate a macOS-native renderer. Docker BuildKit selects the package for the target architecture automatically. Build/run with a matching Docker platform when cross-building. The Jammy package is used on the official Odoo image's Ubuntu Noble base, matching the upstream package choice; apt resolves the runtime libraries.
+ARM64 and AMD64 are supported. The initial running demo is ARM64 on Docker Desktop/macOS. This does not validate a macOS-native renderer. The base image architecture determines the package through dpkg. Build/run with a matching Docker platform when cross-building. The Jammy package is used on the official Odoo image's Ubuntu Noble base, matching the upstream package choice; apt resolves the runtime libraries.
 
 ## Restart / stop
 

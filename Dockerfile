@@ -1,8 +1,7 @@
 FROM odoo:20.0
 USER root
-ARG TARGETARCH
 RUN set -eu; \
-    WKHTMLTOPDF_ARCH="${TARGETARCH:-$(dpkg --print-architecture)}"; \
+    WKHTMLTOPDF_ARCH="$(dpkg --print-architecture)"; \
     case "$WKHTMLTOPDF_ARCH" in \
       amd64) WKHTMLTOPDF_SHA=a3877e712f5366eada334229537549015fc328e1b5337601d5b8fd216f49a143 ;; \
       arm64) WKHTMLTOPDF_SHA=6c553e16de26e677a46f7aad51011f4c12f05cedb0b3ec0f9800f4bdce2294b5 ;; \
@@ -13,9 +12,8 @@ RUN set -eu; \
       --output /tmp/wkhtmltox.deb; \
     echo "$WKHTMLTOPDF_SHA  /tmp/wkhtmltox.deb" | sha256sum -c -; \
     apt-get update; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-noto-core poppler-utils /tmp/wkhtmltox.deb; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-noto-core /tmp/wkhtmltox.deb; \
     wkhtmltopdf --version; \
-    fc-match 'Noto Sans Myanmar'; \
     rm -rf /var/lib/apt/lists/* /tmp/wkhtmltox.deb
 ENV QT_MYANMAR_HARFBUZZ=1
 USER odoo
