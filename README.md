@@ -1,61 +1,54 @@
-# Odoo 20 Myanmar PDF demo
+# Odoo 20 with Myanmar wkhtmltopdf
 
-Runs the official Odoo 20 Community image with the released Myanmar Unicode wkhtmltopdf renderer. PostgreSQL and Odoo have dedicated persistent volumes. The web server binds only to `127.0.0.1:8070`.
+Uses `FROM odoo:20.0` with the released Myanmar wkhtmltopdf package. The Compose layout follows the official Odoo Docker example: `web`, PostgreSQL 16, a password secret, mounted configuration/addons and persistent volumes.
+
+## Start a new instance
+
+Create `odoo_pg_pass` containing the PostgreSQL password (one line). This file is ignored by Git and excluded from the image build context. Both services read the same secret; the password is not stored in Compose.
 
 ```bash
-cp .env.example .env
-mkdir -p artifacts
+printf '%s\n' 'local-demo-db' > odoo_pg_pass
 docker compose build
-docker compose up -d --wait db
-# Run once for a fresh database:
-docker compose run --rm --no-deps -T odoo odoo -d myanmar_demo -i base,web,base_report_wkhtmltox --without-demo=all --stop-after-init
-docker compose up -d --wait
+docker compose up -d
 ```
 
-For a new database, select wkhtmltopdf and the internal report URL once:
+Open http://localhost:8069. On a fresh database volume, create your Odoo database through the database manager and select your login/password. For a reproducible local `myanmar_demo` database with `admin` / `admin`, initialize it instead before starting `web`:
 
 ```bash
-docker compose exec -T odoo /entrypoint.sh odoo shell -d myanmar_demo --no-http <<'PY'
+docker compose up -d db
+docker compose run --rm -T web odoo -d myanmar_demo -i base,web,base_report_wkhtmltox --without-demo=all --stop-after-init
+docker compose up -d web
+```
+
+For wkhtmltopdf reports, install the official `base_report_wkhtmltox` addon if it is not already installed. Select the renderer and internal asset URL for that database:
+
+```bash
+docker compose exec -T web /entrypoint.sh odoo shell -d myanmar_demo --no-http <<'PY'
 params = env['ir.config_parameter'].sudo()
 params.set_str('report.pdf_engine_default', 'wkhtmltopdf')
-params.set_str('report.url', 'http://odoo:8069')
+params.set_str('report.url', 'http://web:8069')
 env.cr.commit()
 PY
 ```
 
-For the already initialized demo, simply run `docker compose up -d --wait`.
+Use standard Odoo apps/reports. `addons/` is empty; no custom module or helper scripts are included. `config/odoo.conf` preserves the official addons/data paths. PostgreSQL credentials come from the secret through the official entrypoint.
 
-Open http://localhost:8070 and sign in with `admin` / `admin`. These are disposable local demo credentials. Change the password in Odoo before using this setup beyond the local demo.
+## Release
 
-Use Odoo's standard apps and reports. No custom addon is included or installed. The official `base_report_wkhtmltox` module selects the wkhtmltopdf backend.
+The Dockerfile determines architecture using `dpkg --print-architecture`, downloads the released ARM64/AMD64 `.deb` directly, verifies SHA256 and installs it. It reuses tools/libraries from the base and adds Noto Myanmar fonts (`fonts-noto-core`). `QT_MYANMAR_HARFBUZZ=1` enables the new shaping path.
 
-The PDFs and verification files under `docs/` record the earlier custom report fixture, before that addon was removed. They are historical test evidence; use a standard Odoo report to verify current behavior.
+- [wkhtmltopdf release](https://github.com/HanZawNyein/packaging/releases/tag/0.12.6.1-3-myanmar12)
+- [Source changes and patches](docs/wkhtmltopdf-changes.md)
+- [Historical report verification](docs/verification.md)
+- [Official Odoo Docker reference](https://github.com/odoo/docker)
 
-## Image and release
+## Existing demo / persistence
 
-- Official base: `FROM odoo:20.0`. The demo was verified with Odoo 20.0-20260926.
-- PostgreSQL: 16 Alpine, pinned digest in Compose.
-- Release: [0.12.6.1-3-myanmar12](https://github.com/HanZawNyein/packaging/releases/tag/0.12.6.1-3-myanmar12).
-- The Dockerfile downloads the public `.deb` directly from the GitHub release URL, selects ARM64/AMD64 via `dpkg --print-architecture`, and verifies its pinned SHA256. No local package file or source build is used.
-- The Dockerfile installs that package with apt (including `libharfbuzz0b`), `fonts-noto-core` (Myanmar fonts missing from the base), then returns to the official `odoo` user.
-- `QT_MYANMAR_HARFBUZZ=1` enables the new path. A complete Unicode Myanmar font is required.
-
-ARM64 and AMD64 are supported. The initial running demo is ARM64 on Docker Desktop/macOS. This does not validate a macOS-native renderer. The base image architecture determines the package through dpkg. Build/run with a matching Docker platform when cross-building. The Jammy package is used on the official Odoo image's Ubuntu Noble base, matching the upstream package choice; apt resolves the runtime libraries.
-
-## Restart / stop
+This new Compose definition uses port 8069, service `web` and volumes `odoo-web-data` / `odoo-db-data`. The earlier running demo used port 8070, service `odoo` and different volumes. Editing this file does not migrate that database or stop its running containers. The new definition has been validated but has not been deployed over the existing demo. Migrate the database/filestore explicitly if you need its data in this new layout.
 
 ```bash
-docker compose up -d --wait
 docker compose stop
 docker compose down
 ```
 
-These preserve database and filestore volumes. Do not use `down -v` unless you intend to delete the demo data. Only run the initialization command for a new database. Change an existing user's password in Odoo.
-
-See [wkhtmltopdf source changes](docs/wkhtmltopdf-changes.md) and [verification results](docs/verification.md).
-
-## References
-
-The layout follows the [official Odoo Docker Hub guide](https://hub.docker.com/_/odoo): PostgreSQL, `/var/lib/odoo` persistence, official connection variables. The [official Odoo 20 Dockerfile](https://github.com/odoo/docker/blob/master/20.0/Dockerfile) selects the same upstream Jammy wkhtmltopdf packaging family. This demo inherits the official entrypoint and Odoo configuration.
-
-The release is published as a normal GitHub release. Its Myanmar implementation remains opt-in and has known limits; a release label does not expand the tested font/style/bidi coverage. Read the change document before using it for production reports.
+These preserve named volumes. `down -v` deletes the selected project's data. Changing `odoo_pg_pass` does not change an already initialized PostgreSQL role's password. The original demo's admin/admin credentials remain on its existing database; a new volume has its own database setup.

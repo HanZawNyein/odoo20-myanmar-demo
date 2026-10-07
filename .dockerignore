@@ -5,3 +5,4 @@ docs
 README.md
 build
 *.log
+odoo_pg_pass
