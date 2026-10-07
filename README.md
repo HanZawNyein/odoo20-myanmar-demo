@@ -7,7 +7,7 @@ Runs the official Odoo 20 Community image with the released Myanmar Unicode wkht
 ./scripts/verify.sh
 ```
 
-Open http://localhost:8070 and sign in with `admin` / `local-demo-admin` (or the value of `ODOO_ADMIN_PASSWORD` in your ignored `.env`). These are disposable local demo credentials. Change `.env.example` values before using this setup beyond the local demo.
+Open http://localhost:8070 and sign in with `admin` / `admin` (or the value of `ODOO_ADMIN_PASSWORD` in your ignored `.env`). These are disposable local demo credentials. Change `.env.example` values before using this setup beyond the local demo.
 
 Open **Myanmar PDF Demo → Unicode sample**, open/select the sample contact, then choose **Print → Myanmar Unicode Demo**. The two-page QWeb PDF repeats the original Unicode sentence three times with a table and page footers. The addon only supplies report/menu/sample data; it performs no text reordering or PUA conversion.
 
