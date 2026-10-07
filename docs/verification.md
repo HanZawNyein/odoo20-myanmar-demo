@@ -22,3 +22,7 @@ The sample addon only registers QWeb report templates, menus and a contact conta
 The PDF previews were visually inspected. Browser automation could not open localhost because its admin policy check was unavailable; UI clicks were not verified. Open the running local URL manually and use the report instructions in the README. The report itself was generated through Odoo's real QWeb/wkhtmltopdf pipeline and fetched assets from its live server.
 
 The new runtime demo was tested on ARM64. AMD64 release packages were previously tested in the renderer project, but this new Odoo demo was not run on AMD64. The exported sample can wrap within words; modern Myanmar word-breaking remains outside this patch's scope.
+
+## Direct release download in Dockerfile
+
+The image was rebuilt and the running demo reverified after replacing local package COPY with an architecture-specific GitHub release download inside the Dockerfile. The ARM64 download passed SHA256 verification; all QWeb PDF checks above passed again. `build/` is excluded from the Docker build context and the host fetch helper was removed.

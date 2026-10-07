@@ -3,7 +3,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 [[ -f .env ]] || cp .env.example .env
 mkdir -p artifacts
-python3 scripts/fetch-release.py
 docker compose config --quiet
 docker compose build odoo
 docker compose up -d --wait db
