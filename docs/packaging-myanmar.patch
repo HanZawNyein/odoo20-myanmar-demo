@@ -1,0 +1,82 @@
+diff --git a/build b/build
+index 3da0ca3..9ff93f5 100755
+--- a/build
++++ b/build
+@@ -43,10 +43,6 @@ def docker_images(config, targets, force):
+     def pull(image, platform):
+         if image in images:
+             shell('docker rmi -f %s' % image)
+-        if platform != 'linux/amd64':
+-            if output('docker version --format "{{.Server.Experimental}}"') != 'true':
+-                message('Could not detect experimental: true in docker daemon, aborting.')
+-                sys.exit(1)
+         shell('docker pull --platform %s %s' % (platform or 'linux/amd64', image))
+ 
+     started_qemu = None
+@@ -70,7 +66,7 @@ def docker_images(config, targets, force):
+         if force or image not in images:
+             if 'from' in params.get('args', {}):
+                 pull(params['args']['from'], params.get('platform') or 'linux/amd64')
+-            shell('docker build -f %s %s -t %s docker/' % (params['source'], args, image))
++            shell('docker build --platform %s -f %s %s -t %s docker/' % (params.get('platform', 'linux/amd64'), params['source'], args, image))
+ 
+ def get_version(src_dir, iteration):
+     rel_ver = open(os.path.join(src_dir, 'VERSION'), 'r').read().strip()
+@@ -105,7 +101,7 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
+     shell('mkdir -p %(tgt)s/app %(tgt)s/qt' % dict(tgt=tgt_dir))
+ 
+     cross  = config['docker-targets'][target].get('cross_compile')
+-    dimage = '--user %d:%d %s%s' % (os.getuid(), os.getgid(), config['docker-prefix'], target)
++    dimage = '--platform %s --user %d:%d %s%s' % (config['docker-targets'][target].get('platform', 'linux/amd64'), os.getuid(), os.getgid(), config['docker-prefix'], target)
+     def dshell(wd, cmd):
+         shell('docker run --rm -v%s:/src -v%s:/tgt -v%s:/pkg -w%s %s %s' % (
+             os.path.abspath(src_dir), os.path.abspath(tgt_dir), os.getcwd(), wd, dimage, cmd))
+@@ -145,7 +141,7 @@ def package_docker(config, target, src_dir, iteration, clean=False, debug=False)
+     depend  = config['docker-targets'][target].get('depend', '')
+ 
+     arch     = config['docker-targets'][target].get('arch')
+-    dimage   = '-e XZ_OPT=-9 --user %d:%d %s' % (os.getuid(), os.getgid(), config['fpm-image'])
++    dimage   = '--platform linux/amd64 -e XZ_OPT=-9 --user %d:%d %s' % (os.getuid(), os.getgid(), config['fpm-image'])
+     fversion = '--epoch 1 --version "%s" --iteration "%s.%s"' % (pkg_ver, pkg_iter, target.split('-')[0])
+     fparams  = ' '.join('--%s "%s"' % (k, v) for k, v in config['fpm-params'].items())
+     fdepend  = ' '.join('--depends "%s"' % p for p in depend.split() if p).strip()
+diff --git a/build.yml b/build.yml
+index f82aeb4..43e8663 100644
+--- a/build.yml
++++ b/build.yml
+@@ -75,6 +75,7 @@ docker-targets:
+       libjpeg62-turbo
+       libpng16-16
+       libssl3
++      libharfbuzz0b
+       libstdc++6
+       libx11-6
+       libxcb1
+@@ -100,6 +101,7 @@ docker-targets:
+       libjpeg62-turbo
+       libpng16-16
+       libssl3
++      libharfbuzz0b
+       libstdc++6
+       libx11-6
+       libxcb1
+@@ -173,6 +175,7 @@ docker-targets:
+       libjpeg-turbo8
+       libpng16-16
+       libssl3
++      libharfbuzz0b
+       libstdc++6
+       libx11-6
+       libxcb1
+diff --git a/docker/Dockerfile.debian b/docker/Dockerfile.debian
+index 46bc136..170a8ae 100644
+--- a/docker/Dockerfile.debian
++++ b/docker/Dockerfile.debian
+@@ -9,6 +9,7 @@ ENV  CFLAGS=-w CXXFLAGS=-w
+ RUN apt-get update && apt-get install -y -q --no-install-recommends \
+     build-essential \
+     libfontconfig1-dev \
++    libharfbuzz-dev \
+     libfreetype6-dev \
+     $jpeg \
+     libpng-dev \

@@ -1,0 +1,13 @@
+{
+  "odoo_20": true,
+  "wkhtmltopdf_engine": true,
+  "opt_in": true,
+  "binary_matches_release": true,
+  "exact_unicode_repetitions": 3,
+  "two_pages": true,
+  "footers": true,
+  "font_embedded": true,
+  "live_assets": true,
+  "no_pua_workaround": true,
+  "passed": true
+}

@@ -1,0 +1,44 @@
+name: ${COMPOSE_PROJECT_NAME:-odoo20-myanmar-demo}
+services:
+  db:
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/start.sh first}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U odoo']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  odoo:
+    build: .
+    image: odoo20-myanmar-demo:local
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/start.sh first}
+      QT_MYANMAR_HARFBUZZ: '1'
+      ODOO_ADMIN_PASSWORD: ${ODOO_ADMIN_PASSWORD:?Run scripts/start.sh first}
+    command: [odoo, -d, myanmar_demo, '--db-filter=^myanmar_demo$', '--no-database-list', '--workers=0', '--http-interface=0.0.0.0']
+    ports:
+      - '127.0.0.1:${ODOO_PORT:-8070}:8069'
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./artifacts:/artifacts
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8069/web/login', timeout=5)"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+volumes:
+  db-data:
+  odoo-data:

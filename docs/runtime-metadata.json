@@ -1,0 +1,29 @@
+{
+  "odoo": "20.0-20260926",
+  "pdf_engine": "wkhtmltopdf",
+  "sample": "သီဟိုဠ်မှ ဉာဏ်ကြီးရှင်သည် အာယုဝဍ္ဎနဆေးညွှန်းစာကို ဇလွန်ဈေးဘေး ဗာဒံပင်ထက် အဓိဋ္ဌာန်လျက် ဂဃနဏဖတ်ခဲ့သည်။",
+  "expected_repetitions": 3,
+  "font": "NotoSansMyanmar",
+  "wkhtmltopdf": "wkhtmltopdf 0.12.6.1 (with patched qt)",
+  "binary_sha256": "9993b76cace04b56a21e8de7a7a5e9ec176ac6232a5606916c0e3adaf54d4ea1",
+  "opt_in": "1",
+  "installed_modules": [
+    "myanmar_pdf_demo",
+    "api_doc",
+    "auth_passkey",
+    "auth_totp",
+    "base",
+    "base_import",
+    "base_import_module",
+    "base_report_wkhtmltox",
+    "base_setup",
+    "bus",
+    "html_editor",
+    "iap",
+    "mysubscription",
+    "rpc",
+    "web",
+    "web_tour",
+    "web_unsplash"
+  ]
+}
