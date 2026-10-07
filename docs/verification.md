@@ -10,7 +10,7 @@ Verified on 2026-10-08 (Asia/Yangon) using Docker Desktop Linux ARM64 on macOS.
 - Runtime HarfBuzz: 8.3.0-2build2 on Ubuntu Noble.
 - PostgreSQL and Odoo containers: healthy. Local port: `127.0.0.1:8070`.
 
-`./scripts/verify.sh` passed: original Unicode sentence extracted three times; two PDF pages; both page footers; embedded Myanmar font; live HTTP 200 report assets; correct released binary and chosen PDF engine; no ReportMyanmarText workaround module.
+The verification performed before the helper scripts were removed passed: original Unicode sentence extracted three times; two PDF pages; both page footers; embedded Myanmar font; live HTTP 200 report assets; correct released binary and chosen PDF engine; no ReportMyanmarText workaround module.
 
 The sample addon only registers QWeb report templates, menus and a contact containing the original text. It does not change text or renderer internals.
 
@@ -26,3 +26,5 @@ The new runtime demo was tested on ARM64. AMD64 release packages were previously
 ## Direct release download in Dockerfile
 
 The image was rebuilt and the running demo reverified after replacing local package COPY with an architecture-specific GitHub release download inside the Dockerfile. The ARM64 download passed SHA256 verification; all QWeb PDF checks above passed again. `build/` is excluded from the Docker build context and the host fetch helper was removed.
+
+The helper scripts were subsequently removed to simplify the demo. Use the Compose commands in the README and print the report through Odoo. These recorded results describe the earlier verification run.

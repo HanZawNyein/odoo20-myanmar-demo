@@ -3,15 +3,33 @@
 Runs the official Odoo 20 Community image with the released Myanmar Unicode wkhtmltopdf renderer. PostgreSQL and Odoo have dedicated persistent volumes. The web server binds only to `127.0.0.1:8070`.
 
 ```bash
-./scripts/start.sh
-./scripts/verify.sh
+cp .env.example .env
+mkdir -p artifacts
+docker compose build
+docker compose up -d --wait db
+# Run once for a fresh database:
+docker compose run --rm --no-deps -T odoo odoo -d myanmar_demo -i myanmar_pdf_demo --without-demo=all --stop-after-init
+docker compose up -d --wait
 ```
 
-Open http://localhost:8070 and sign in with `admin` / `admin` (or the value of `ODOO_ADMIN_PASSWORD` in your ignored `.env`). These are disposable local demo credentials. Change `.env.example` values before using this setup beyond the local demo.
+For a new database, select wkhtmltopdf and the internal report URL once:
+
+```bash
+docker compose exec -T odoo /entrypoint.sh odoo shell -d myanmar_demo --no-http <<'PY'
+params = env['ir.config_parameter'].sudo()
+params.set_str('report.pdf_engine_default', 'wkhtmltopdf')
+params.set_str('report.url', 'http://odoo:8069')
+env.cr.commit()
+PY
+```
+
+For the already initialized demo, simply run `docker compose up -d --wait`.
+
+Open http://localhost:8070 and sign in with `admin` / `admin`. These are disposable local demo credentials. Change the password in Odoo before using this setup beyond the local demo.
 
 Open **Myanmar PDF Demo → Unicode sample**, open/select the sample contact, then choose **Print → Myanmar Unicode Demo**. The two-page QWeb PDF repeats the original Unicode sentence three times with a table and page footers. The addon only supplies report/menu/sample data; it performs no text reordering or PUA conversion.
 
-`./scripts/verify.sh` exports `artifacts/myanmar-demo.pdf`, extracted text, PNG previews and `verification.json`. It verifies the installed binary against the released ARM64/AMD64 binary fingerprints, the chosen wkhtmltopdf engine, Unicode extraction, two pages, page footers, embedded Noto Sans Myanmar and live asset fetching.
+The previously verified sample PDF, previews and results are committed under `docs/`. Print a fresh report through Odoo to test the current runtime.
 
 ## Image and release
 
@@ -32,7 +50,7 @@ docker compose stop
 docker compose down
 ```
 
-These preserve database and filestore volumes. Do not use `down -v` unless you intend to delete the demo data. `start.sh` initializes only a new `myanmar_demo` database. Changing the admin password in `.env` after initialization does not change an existing user's password.
+These preserve database and filestore volumes. Do not use `down -v` unless you intend to delete the demo data. Only run the initialization command for a new database. Change an existing user's password in Odoo.
 
 See [wkhtmltopdf source changes](docs/wkhtmltopdf-changes.md) and [verification results](docs/verification.md).
 

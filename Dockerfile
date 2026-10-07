@@ -18,6 +18,5 @@ RUN set -eu; \
     fc-match 'Noto Sans Myanmar'; \
     rm -rf /var/lib/apt/lists/* /tmp/wkhtmltox.deb
 COPY --chown=odoo:odoo addons/ /mnt/extra-addons/
-COPY scripts/bootstrap.py scripts/export_report.py scripts/verify_report.py /opt/myanmar-demo/
 ENV QT_MYANMAR_HARFBUZZ=1
 USER odoo

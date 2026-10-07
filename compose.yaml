@@ -25,7 +25,6 @@ services:
       USER: odoo
       PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/start.sh first}
       QT_MYANMAR_HARFBUZZ: '1'
-      ODOO_ADMIN_PASSWORD: ${ODOO_ADMIN_PASSWORD:?Run scripts/start.sh first}
     command: [odoo, -d, myanmar_demo, '--db-filter=^myanmar_demo$', '--no-database-list', '--workers=0', '--http-interface=0.0.0.0']
     ports:
       - '127.0.0.1:${ODOO_PORT:-8070}:8069'
