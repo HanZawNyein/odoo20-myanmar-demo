@@ -2,7 +2,7 @@
 
 Verified on 2026-10-08 (Asia/Yangon) using Docker Desktop Linux ARM64 on macOS.
 
-- Odoo: `20.0-20260926`, official image pinned in the Dockerfile.
+- Odoo: `20.0-20260926`, official `odoo:20.0` image.
 - Package: `1:0.12.6.1-3.myanmar12.jammy` from the public GitHub release URL.
 - Renderer: `wkhtmltopdf 0.12.6.1 (with patched qt)`; engine `wkhtmltopdf` with `QT_MYANMAR_HARFBUZZ=1`.
 - Installed binary SHA256: `9993b76cace04b56a21e8de7a7a5e9ec176ac6232a5606916c0e3adaf54d4ea1` (matches the released ARM64 binary).
